@@ -15,3 +15,6 @@ if __name__ == "__main__":
         masinList.append(masin)
         time.sleep(2)
         print('%s %s' % (asin, masin))
+        with open('masin.txt', 'a+') as f:
+            f.write(masin + ' ')
+    print(masinList)

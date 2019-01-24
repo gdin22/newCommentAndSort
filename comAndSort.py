@@ -1,10 +1,11 @@
 import requests
-requests.packages.urllib3.disable_warnings()
 from bs4 import BeautifulSoup
 import json
 import re
 import random
 from dealIp import DealIp
+import time
+requests.packages.urllib3.disable_warnings()
 
 
 class ComAndSort(object):
@@ -16,19 +17,17 @@ class ComAndSort(object):
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
         ]
 
-    def get_html(self, url, headers, proxies):
+    def get_html(self, url, headers, proxies, timeout):
         try:
-            html = requests.get(url, headers=headers, proxies=proxies)
-            if not html.text.find('robot'):
+            html = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
+            if html.text.lower().find('robot check') == -1:
                 return html.text
             else:
-                dealip = DealIp()
-                http = dealip.get_html_returnip()
-                proxies = {'https://': http}
-                html = requests.get(url, headers=headers, proxies=proxies)
-                return html.text
+                proxies = self.tranHttp()
+                return self.get_html(url, headers=headers, proxies=proxies, timeout=timeout)
         except:
-            pass
+            proxies = self.tranHttp()
+            return self.get_html(url, headers=headers, proxies=proxies, timeout=timeout)
 
     # 根据处理过的response 即为soup进行解析
     # 得到评论数 调用得到排行
@@ -36,7 +35,9 @@ class ComAndSort(object):
         dealip = DealIp()
         http = dealip.get_ip()
         proxies = {'https://': http}
-        htmltext = self.get_html(url, headers={'user-agent': random.choice(self.user_agent)}, proxies=proxies)
+
+        htmltext = self.get_html(url, headers={'user-agent': random.choice(self.user_agent)}, proxies=proxies,
+                                 timeout=20)
         soup = BeautifulSoup(htmltext, 'lxml')
         # print(soup)
         int_sort_num = self.get_first_sort(soup)
@@ -76,3 +77,14 @@ class ComAndSort(object):
         sizeList = re.findall(r'>Size: (.*?)<', text)
         colorList = re.findall(r'>Color: (.*?)<', text)
         return {'star': starList, 'size': sizeList, 'color': colorList}
+
+    # 在访问网页出现错误的时候 需要对ip进行重新获取然后更新
+    # each_time为每次请求api的时间间隔
+    # 返回ip
+    def tranHttp(self, each_time=5):
+        time.sleep(each_time)
+        dealip = DealIp()
+        http = dealip.add_new_and_remove_old()
+        proxies = {'https': 'http://' + http}
+        print('切换ip')
+        return proxies

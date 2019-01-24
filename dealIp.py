@@ -6,7 +6,7 @@ db = conn.self
 
 class DealIp(object):
     def __init__(self):
-        self.ip_url = 'http://331684675372215668.standard.hutoudaili.com/?num=1&scheme=1&anonymity=3&order=1&style=1'
+        self.ip_url = 'http://331935043663215668.standard.hutoudaili.com/?num=1&area_type=3&scheme=1&anonymity=3'
 
     # 一次只请求一个
     def get_html_returnip(self):
@@ -21,5 +21,9 @@ class DealIp(object):
         return self.get_ip()
 
     def get_ip(self):
-        http = db.ip.find_one()['http']
-        return http
+        try:
+            http = db.ip.find_one()['http']
+            return http
+        except Exception as e:
+            print(e)
+            return self.add_new_and_remove_old()
