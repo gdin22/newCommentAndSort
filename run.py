@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 if comment_up_num != 0:
                     to_comment = cms.get_sort_comment(asin, comment_up_num)
                 else:
-                    to_comment = {}
+                    to_comment = dict()
                     to_comment['size'] = []
                     to_comment['star'] = []
                     to_comment['color'] = []
@@ -74,7 +74,9 @@ if __name__ == '__main__':
                                        'size': to_comment.get('size'), 'star': to_comment.get('star'),
                                        'comment_num': comment_num, 'sort': int_sort_num})
             except:
-                pass
+                f = open('error_asin.txt', 'a+')
+                f.write(asin + ' ')
+                f.close()
 
         # 发送部分
         today = datetime.datetime.now()

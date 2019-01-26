@@ -34,7 +34,7 @@ class ComAndSort(object):
     def get_comment_num_sort(self, url):
         dealip = DealIp()
         http = dealip.get_ip()
-        proxies = {'https://': http}
+        proxies = {'https://': 'http://'+http}
 
         htmltext = self.get_html(url, headers={'user-agent': random.choice(self.user_agent)}, proxies=proxies,
                                  timeout=20)
